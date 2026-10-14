@@ -1,3 +1,5 @@
+<img src="branding/logo.svg" alt="My Git" width="80" height="80">
+
 # Gitea for Workspace
 
 This fork adds a self-contained Windows launcher for M8E Workspace. Gitea's

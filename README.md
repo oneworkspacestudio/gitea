@@ -1,3 +1,9 @@
+<img src="public/assets/img/logo.svg" alt="My Git" width="80" height="80">
+
+## My Git for One Workspace
+
+This fork includes a portable Windows launcher with MyAccounts sign-in and the My Git branding. See the [Workspace package and local build instructions](integrations/workspace/README.md). [One Workspace](https://github.com/fahimc/one-workspace) installs the connected suite. The upstream Gitea project and its documentation remain below.
+
 # Gitea
 
 [![](https://github.com/go-gitea/gitea/actions/workflows/release-nightly.yml/badge.svg?branch=main)](https://github.com/go-gitea/gitea/actions/workflows/release-nightly.yml?query=branch%3Amain "Release Nightly")

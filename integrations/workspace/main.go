@@ -8,7 +8,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"database/sql"
-	_ "embed"
+	"embed"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -31,6 +31,9 @@ import (
 
 //go:embed payload.zip
 var payload []byte
+
+//go:embed branding/*
+var brandAssets embed.FS
 
 func main() {
 	if e := run(); e != nil {
@@ -60,6 +63,10 @@ func run() error {
 	if e = protectData(*data); e != nil {
 		return e
 	}
+	custom := filepath.Join(*data, "workspace-branding")
+	if e = installBranding(custom); e != nil {
+		return e
+	}
 	git := filepath.Join(runtime, "git", "cmd")
 	env := append(os.Environ(), "PATH="+git+string(os.PathListSeparator)+os.Getenv("PATH"))
 	binary := filepath.Join(runtime, "gitea.exe")
@@ -70,7 +77,7 @@ func run() error {
 		}
 	}
 	command := func(args ...string) *exec.Cmd {
-		args = append([]string{"--work-path", *data, "--config", config}, args...)
+		args = append([]string{"--work-path", *data, "--custom-path", custom, "--config", config}, args...)
 		c := exec.Command(binary, args...)
 		c.Dir = *data
 		c.Env = env
@@ -118,6 +125,27 @@ func run() error {
 	child.Stdout = os.Stdout
 	child.Stderr = os.Stderr
 	return child.Run()
+}
+
+func installBranding(custom string) error {
+	assets := filepath.Join(custom, "public", "assets", "img")
+	if e := os.MkdirAll(assets, 0700); e != nil {
+		return fmt.Errorf("installBranding: %w", e)
+	}
+	files, e := brandAssets.ReadDir("branding")
+	if e != nil {
+		return fmt.Errorf("installBranding: %w", e)
+	}
+	for _, file := range files {
+		data, e := brandAssets.ReadFile("branding/" + file.Name())
+		if e != nil {
+			return fmt.Errorf("installBranding: %w", e)
+		}
+		if e = os.WriteFile(filepath.Join(assets, file.Name()), data, 0600); e != nil {
+			return fmt.Errorf("installBranding: %w", e)
+		}
+	}
+	return nil
 }
 
 func writeConfig(path, data string, port int, git string) error {
