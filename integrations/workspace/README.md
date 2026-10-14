@@ -1,6 +1,4 @@
-<img src="branding/logo.svg" alt="My Git" width="80" height="80">
-
-# Gitea for Workspace
+# <img src="branding/logo.svg" alt="" width="32" height="32"> Gitea for Workspace
 
 This fork adds a self-contained Windows launcher for M8E Workspace. Gitea's
 native OpenID Connect handles MyAccounts login, account creation and stable
