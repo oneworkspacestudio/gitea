@@ -68,13 +68,25 @@ func run() error {
 		return e
 	}
 	git := filepath.Join(runtime, "git", "cmd")
-	env := append(os.Environ(), "PATH="+git+string(os.PathListSeparator)+os.Getenv("PATH"))
+	shell := filepath.Join(runtime, "git", "usr", "bin")
+	env := append(os.Environ(), "PATH="+strings.Join([]string{git, shell, os.Getenv("PATH")}, string(os.PathListSeparator)))
+	shellBytes, e := os.ReadFile(filepath.Join(shell, "sh.exe"))
+	if e != nil {
+		return fmt.Errorf("run: packaged Windows hook shell is missing: %w", e)
+	}
+	// Older repositories use env bash; MinGit supplies the same interpreter as sh.exe.
+	if e = os.WriteFile(filepath.Join(shell, "bash.exe"), shellBytes, 0700); e != nil {
+		return e
+	}
 	binary := filepath.Join(runtime, "gitea.exe")
 	config := filepath.Join(*data, "app.ini")
 	if _, e = os.Stat(config); os.IsNotExist(e) {
 		if e = writeConfig(config, *data, *port, git); e != nil {
 			return e
 		}
+	}
+	if e = configureHookShell(config); e != nil {
+		return e
 	}
 	command := func(args ...string) *exec.Cmd {
 		args = append([]string{"--work-path", *data, "--custom-path", custom, "--config", config}, args...)
@@ -141,7 +153,17 @@ func installBranding(custom string) error {
 		if e != nil {
 			return fmt.Errorf("installBranding: %w", e)
 		}
-		if e = os.WriteFile(filepath.Join(assets, file.Name()), data, 0600); e != nil {
+		target := filepath.Join(assets, file.Name())
+		if strings.HasSuffix(file.Name(), ".tmpl") {
+			target = filepath.Join(custom, "templates", "base", file.Name())
+			if file.Name() == "repo_header.tmpl" {
+				target = filepath.Join(custom, "templates", "repo", "header.tmpl")
+			}
+			if e = os.MkdirAll(filepath.Dir(target), 0700); e != nil {
+				return e
+			}
+		}
+		if e = os.WriteFile(target, data, 0600); e != nil {
 			return fmt.Errorf("installBranding: %w", e)
 		}
 	}
@@ -177,6 +199,7 @@ OFFLINE_MODE = true
 DB_TYPE = sqlite3
 PATH = %s/gitea.db
 [repository]
+SCRIPT_TYPE = sh
 ROOT = %s/repositories
 [security]
 INSTALL_LOCK = true
@@ -207,6 +230,49 @@ MODE = console
 LEVEL = Warn
 `, port, origin, slash(data), slash(data), slash(data), slash(data), u.Scheme == "https", slash(git))
 	return os.WriteFile(path, []byte(body), 0600)
+}
+
+func configureHookShell(path string) error {
+	if err := setINIValue(path, "repository", "SCRIPT_TYPE", "sh"); err != nil {
+		return err
+	}
+	return setINIValue(path, "ui", "DEFAULT_SHOW_FULL_NAME", "true")
+}
+func setINIValue(path, sectionName, key, value string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	lines := strings.Split(strings.ReplaceAll(string(data), "\r\n", "\n"), "\n")
+	section, found := "", false
+	heading := "[" + sectionName + "]"
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "[") {
+			section = strings.ToLower(trimmed)
+		}
+		if section == heading && strings.EqualFold(strings.TrimSpace(strings.SplitN(trimmed, "=", 2)[0]), key) {
+			lines[i] = key + " = " + value
+			found = true
+		}
+	}
+	if !found {
+		for i, line := range lines {
+			if strings.EqualFold(strings.TrimSpace(line), heading) {
+				lines[i] += "\n" + key + " = " + value
+				found = true
+				break
+			}
+		}
+	}
+	if !found {
+		lines = append(lines, heading, key+" = "+value)
+	}
+	updated := []byte(strings.Join(lines, "\n"))
+	if bytes.Equal(data, updated) {
+		return nil
+	}
+	return os.WriteFile(path, updated, 0600)
 }
 
 func extract(dest string) error {

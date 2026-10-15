@@ -2,7 +2,7 @@
 
 Gitea repository hosting with MyAccounts sign-in and a portable Windows launcher for One Workspace. Keep repositories, issues and collaboration in your own installation, with a dedicated Git app in the shared portal.
 
-[Download Windows preview](https://github.com/fahimc/gitea/releases/tag/workspace-20261014) · [Launcher and standalone setup](integrations/workspace/README.md) · [One Workspace](https://github.com/fahimc/one-workspace) · [Upstream Gitea](https://github.com/go-gitea/gitea)
+[Download Windows preview](https://github.com/oneworkspacestudio/gitea/releases) · [Launcher and standalone setup](integrations/workspace/README.md) · [One Workspace](https://github.com/oneworkspacestudio/one-workspace) · [Upstream Gitea](https://github.com/go-gitea/gitea)
 
 ## Repositories in your workspace
 
@@ -19,7 +19,7 @@ Workspace shares identity with the other apps. Git retains its own app session a
 
 ## Install with One Workspace
 
-1. Visit [One Workspace](https://github.com/fahimc/one-workspace) for the installer and setup instructions.
+1. Visit [One Workspace](https://github.com/oneworkspacestudio/one-workspace) for the installer and setup instructions.
 2. Complete the Workspace setup wizard and launch the suite.
 3. Open **Git** from the portal and sign in with MyAccounts.
 4. Create a Gitea access token when using an HTTP Git client.
@@ -28,7 +28,7 @@ The installer supplies the launcher, Git runtime and dedicated OIDC client confi
 
 ## Run independently
 
-Download `Gitea.exe` from this fork's [preview release](https://github.com/fahimc/gitea/releases/tag/workspace-20261014). Supply your MyAccounts issuer/client settings and the public Git URL in a protected launcher, then run:
+Download `Gitea.exe` from this fork's [preview release](https://github.com/oneworkspacestudio/gitea/releases). Supply your MyAccounts issuer/client settings and the public Git URL in a protected launcher, then run:
 
 ```powershell
 .\Gitea.exe --data 'D:\Private\MyGit' --port 8994
