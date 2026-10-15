@@ -1,4 +1,8 @@
-# <img src="public/assets/img/logo.svg" alt="" width="40" height="40"> My Git
+<p align="center">
+  <img src="public/assets/img/logo.svg" alt="My Git logo" width="112" height="112">
+</p>
+
+<h1 align="center">My Git</h1>
 
 Gitea repository hosting with MyAccounts sign-in and a portable Windows launcher for One Workspace. Keep repositories, issues and collaboration in your own installation, with a dedicated Git app in the shared portal.
 
