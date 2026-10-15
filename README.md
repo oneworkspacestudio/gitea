@@ -19,7 +19,7 @@ Workspace shares identity with the other apps. Git retains its own app session a
 
 ## Install with One Workspace
 
-1. Download the [Git and Music edition](https://github.com/fahimc/one-workspace/releases/tag/v0.2.0-gitmusic-preview.3).
+1. Visit [One Workspace](https://github.com/fahimc/one-workspace) and download the Git and Music edition.
 2. Complete the Workspace setup wizard and launch the suite.
 3. Open **Git** from the portal and sign in with MyAccounts.
 4. Create a Gitea access token when using an HTTP Git client.
